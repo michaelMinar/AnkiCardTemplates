@@ -1,0 +1,31 @@
+{
+  "name": "anki-card-templates",
+  "version": "1.0.0",
+  "description": "JavaScript based Anki Card templates for dynamic mathematics flash cards",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelMinar/AnkiCardTemplates.git"
+  },
+  "keywords": [
+    "anki",
+    "flashcards",
+    "mathematics",
+    "education"
+  ],
+  "author": "Michael Minar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelMinar/AnkiCardTemplates/issues"
+  },
+  "homepage": "https://github.com/michaelMinar/AnkiCardTemplates#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "setupFiles": ["./tests/setup.js"]
+  }
+}
