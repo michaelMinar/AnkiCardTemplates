@@ -5,7 +5,18 @@ const {
   roundToPrecisionAndTrim
 } = require('../../src/order-of-operations');
 
+const { initFrontSide } = require('../../src/order-of-operations/front');
+const { evaluateExpression } = require('../../src/order-of-operations/back');
+
 describe('Order of Operations template', () => {
+  // Set up mocks for browser environment
+  beforeEach(() => {
+    global.localStorage = {
+      setItem: jest.fn(),
+      getItem: jest.fn()
+    };
+  });
+
   describe('formatExpressionWithSuperscript', () => {
     test('should format exponents as superscript', () => {
       const input = '2 ^ 3 + 4';
@@ -82,6 +93,41 @@ describe('Order of Operations template', () => {
       expect(roundToPrecisionAndTrim(3.14159, 2)).toBe(3.14);
       expect(roundToPrecisionAndTrim(1.999, 1)).toBe(2);
       expect(roundToPrecisionAndTrim(10.5555, 3)).toBe(10.556);
+    });
+  });
+
+  describe('initFrontSide', () => {
+    test('should generate and format an expression', () => {
+      const result = initFrontSide(3, true, 'test123');
+      
+      expect(result.expression).toBeDefined();
+      expect(result.formattedExpression).toBeDefined();
+      expect(global.localStorage.setItem).toHaveBeenCalledWith('tempExpression_test123', result.expression);
+    });
+  });
+
+  describe('evaluateExpression', () => {
+    test('should evaluate a simple expression correctly', () => {
+      const result = evaluateExpression('2 + 3');
+      
+      expect(result.success).toBe(true);
+      expect(result.formattedResult).toBe(5);
+      expect(result.formattedExpression).toBe('2 + 3');
+    });
+    
+    test('should evaluate an expression with exponents', () => {
+      const result = evaluateExpression('2 ^ 3 + 1');
+      
+      expect(result.success).toBe(true);
+      expect(result.formattedResult).toBe(9);
+      expect(result.formattedExpression).toBe('2<sup>3</sup> + 1');
+    });
+    
+    test('should handle expression evaluation errors', () => {
+      const result = evaluateExpression('2 +');
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 });

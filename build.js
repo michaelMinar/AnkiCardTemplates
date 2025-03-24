@@ -10,11 +10,6 @@ templateDirs.forEach(dir => {
   console.log(`\nProcessing template: ${dir}`);
   
   try {
-    const scriptPath = path.join('./templates', dir, 'script.js');
-    const scriptContent = fs.existsSync(scriptPath) 
-      ? fs.readFileSync(scriptPath, 'utf8') 
-      : '';
-    
     // Create build directory if it doesn't exist
     const buildDir = path.join('./build', dir);
     if (!fs.existsSync(buildDir)) {
@@ -22,27 +17,34 @@ templateDirs.forEach(dir => {
     }
     
     // Process front template
-    const frontPath = path.join('./templates', dir, 'front.html');
-    if (fs.existsSync(frontPath)) {
-      const frontContent = fs.readFileSync(frontPath, 'utf8');
-      const frontCombined = scriptContent 
-        ? `${frontContent}\n<script>\n${scriptContent}\n</script>` 
-        : frontContent;
+    const frontHtmlPath = path.join('./templates', dir, 'front.html');
+    const frontJsPath = path.join('./src', dir, 'front.js');
+    
+    if (fs.existsSync(frontHtmlPath) && fs.existsSync(frontJsPath)) {
+      const frontHtmlContent = fs.readFileSync(frontHtmlPath, 'utf8');
+      const frontJsContent = fs.readFileSync(frontJsPath, 'utf8');
+      
+      const frontCombined = `${frontHtmlContent}\n<script>\n${frontJsContent}\n</script>`;
       fs.writeFileSync(path.join(buildDir, 'front.js'), frontCombined);
       console.log(`Built ${dir}/front.js`);
+    } else {
+      console.log(`Missing files for front template. HTML: ${fs.existsSync(frontHtmlPath)}, JS: ${fs.existsSync(frontJsPath)}`);
     }
     
     // Process back template
-    const backPath = path.join('./templates', dir, 'back.html');
-    if (fs.existsSync(backPath)) {
-      const backContent = fs.readFileSync(backPath, 'utf8');
-      const backCombined = scriptContent 
-        ? `${backContent}\n<script>\n${scriptContent}\n</script>` 
-        : backContent;
+    const backHtmlPath = path.join('./templates', dir, 'back.html');
+    const backJsPath = path.join('./src', dir, 'back.js');
+    
+    if (fs.existsSync(backHtmlPath) && fs.existsSync(backJsPath)) {
+      const backHtmlContent = fs.readFileSync(backHtmlPath, 'utf8');
+      const backJsContent = fs.readFileSync(backJsPath, 'utf8');
+      
+      const backCombined = `${backHtmlContent}\n<script>\n${backJsContent}\n</script>`;
       fs.writeFileSync(path.join(buildDir, 'back.js'), backCombined);
       console.log(`Built ${dir}/back.js`);
+    } else {
+      console.log(`Missing files for back template. HTML: ${fs.existsSync(backHtmlPath)}, JS: ${fs.existsSync(backJsPath)}`);
     }
-    
   } catch (error) {
     console.error(`Error processing ${dir}: ${error.message}`);
   }

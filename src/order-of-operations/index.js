@@ -79,7 +79,7 @@ function roundToPrecisionAndTrim(num, precision) {
     return parseFloat(rounded);
 }
 
-// Export all functions that should be testable
+// Export shared functions
 module.exports = {
     formatExpressionWithSuperscript,
     generateMathExpression,

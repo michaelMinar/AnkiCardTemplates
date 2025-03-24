@@ -1,8 +1,3 @@
-<div id="uniqueid-wrapper" style="display:none;">{{UniqueID}}</div>
-<div id="num_terms" style="display:none;">{{NumTerms}}</div>
-<div id="include_exponents" style="display:none;">{{IncludeExponents}}</div>
-<div id="question"></div>
-<script>
 // Import shared functions from index.js
 const { formatExpressionWithSuperscript, generateMathExpression } = 
   typeof require !== 'undefined' ? require('./index') : {};
@@ -77,4 +72,3 @@ if (typeof module !== 'undefined' && module.exports) {
     // Execute browser init code
     browserInit();
 }
-</script>

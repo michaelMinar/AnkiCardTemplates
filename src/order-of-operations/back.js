@@ -1,7 +1,3 @@
-{{FrontSide}}
-<hr>
-<div id="answer"></div>
-<script>
 // Import shared functions from index.js
 const { formatExpressionWithSuperscript, roundToPrecisionAndTrim } = 
   typeof require !== 'undefined' ? require('./index') : {};
@@ -77,4 +73,3 @@ if (typeof module !== 'undefined' && module.exports) {
     // Execute browser init code
     browserInit();
 }
-</script>
