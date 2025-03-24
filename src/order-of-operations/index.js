@@ -1,18 +1,3 @@
-<div id="uniqueid-wrapper" style="display:none;">{{UniqueID}}</div>
-<div id="num_terms" style="display:none;">{{NumTerms}}</div>
-<div id="include_exponents" style="display:none;">{{IncludeExponents}}</div>
-<div id="question"></div>
-
-<script>
-// Export functions for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        formatExpressionWithSuperscript,
-        generateMathExpression,
-        insertParentheses
-    };
-}
-
 // Function to format the expression with superscript for exponents
 function formatExpressionWithSuperscript(expr) {
     // Use regex to find patterns like "number ^ exponent" and replace with HTML superscript
@@ -88,45 +73,16 @@ function generateMathExpression(numTerms = 3, includeParens = true, includeExpon
     return expression.join(" ");
 }
 
-(function() {
-    // Check if we're in a browser environment
-    if (typeof document === 'undefined') return;
-    
-    // Check if #answer exists to determine if we're on the back side
-    var onBack = (document.getElementById("answer") !== null);
+// Helper function to round decimal numbers to a given precision
+function roundToPrecisionAndTrim(num, precision) {
+    const rounded = num.toFixed(precision);
+    return parseFloat(rounded);
+}
 
-    // Get the unique ID so each card uses unique keys
-    var uniquePart = "{{UniqueID}}".trim();
-    var numTermsStr = document.getElementById("num_terms").textContent.trim();
-    var includeExponentsStr = document.getElementById("include_exponents").textContent.trim().toLowerCase();
-    
-    // Parse NumTerms value; default to 4 if invalid
-    var numTerms = parseInt(numTermsStr, 10);
-    if (isNaN(numTerms) || numTerms <= 0) {
-        numTerms = 4;
-    }
-    
-    // Parse IncludeExponents value; default to true if invalid
-    var includeExponents = includeExponentsStr === 'false' ? false : true;
-
-    var storageKeyExpression = "tempExpression_" + uniquePart;
-
-    var expression;
-    if (!onBack) {
-        // FRONT SIDE: Generate fresh expression and store it
-        expression = generateMathExpression(numTerms, true, includeExponents);
-        localStorage.setItem(storageKeyExpression, expression);
-    } else {
-        // BACK SIDE: Just read the existing expression
-        expression = localStorage.getItem(storageKeyExpression);
-        if (!expression) {
-            // Fallback if something went wrong
-            expression = "2 + 2";
-        }
-    }
-
-    // Format expression with superscript for exponents before displaying
-    const formattedExpression = formatExpressionWithSuperscript(expression);
-    document.getElementById("question").innerHTML = "Evaluate the expression: " + formattedExpression;
-})();
-</script>
+// Export all functions that should be testable
+module.exports = {
+    formatExpressionWithSuperscript,
+    generateMathExpression,
+    insertParentheses,
+    roundToPrecisionAndTrim
+};
