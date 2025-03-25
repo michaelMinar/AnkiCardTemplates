@@ -24,11 +24,21 @@
   },
   "homepage": "https://github.com/michaelMinar/AnkiCardTemplates#readme",
   "devDependencies": {
+    "@babel/generator": "^7.27.0",
+    "@babel/parser": "^7.27.0",
+    "@babel/traverse": "^7.27.0",
     "jest": "^29.7.0"
   },
   "jest": {
-    "setupFiles": ["./tests/setup.js"],
-    "moduleDirectories": ["node_modules", "src"],
-    "testMatch": ["**/tests/**/*.test.js"]
+    "setupFiles": [
+      "./tests/setup.js"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   }
 }
