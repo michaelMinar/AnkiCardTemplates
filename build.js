@@ -100,8 +100,15 @@ function findRequiredFunctions(filePath, indexFunctions) {
 
 // Function to process a file - directly replace imports and remove exports
 function processFile(fileContent, requiredFunctions, indexFunctions) {
+  // Clean up the source first by removing potential syntax issues
+  let cleanedContent = fileContent;
+  
+  // Fix the most common issues with double parentheses in function declarations
+  cleanedContent = cleanedContent.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\)/g, 'function $1($2)');
+  cleanedContent = cleanedContent.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\s*{/g, 'function $1($2) {');
+  
   // Extract the content without import/export statements
-  let lines = fileContent.split('\n');
+  let lines = cleanedContent.split('\n');
   let processedLines = [];
   let skipLines = false;
   let skipBrowserInit = false;
@@ -127,6 +134,18 @@ function processFile(fileContent, requiredFunctions, indexFunctions) {
   const fixBraces = (code) => {
     // First normalize the indentation for better readability
     code = normalizeIndentation(code);
+    
+    // Fix all variations of double parentheses in function declarations
+    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\)/g, 'function $1($2)');
+    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\s*{/g, 'function $1($2) {');
+    // Fix extra parentheses at the start of function declarations
+    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(([^)]*)\)\s*\{[^}]*\}/g, (match, name, params) => {
+      // Remove extra parentheses around parameters
+      return match.replace(/\(\(([^)]*)\)\)/g, '($1)');
+    });
+    
+    // Fix parentheses around parameter lists directly
+    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)/g, 'function $1($2');
     
     // Fix common bracket issues
     return code

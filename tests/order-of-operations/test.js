@@ -2,7 +2,7 @@ const {
   formatExpressionWithSuperscript, 
   generateMathExpression, 
   insertParentheses 
-} = require('../../order-of-operations/front.js');
+} = require('../../src/order-of-operations/index.js');
 
 describe('Order of Operations Card', () => {
   describe('formatExpressionWithSuperscript', () => {
