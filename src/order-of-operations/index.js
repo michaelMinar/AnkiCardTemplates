@@ -59,9 +59,18 @@ function generateMathExpression(numTerms = 3, includeParens = true, includeExpon
             // First term is always a number
             expression.push(String(Math.floor(Math.random() * 10) + 1));
         } else {
-            // Randomly choose an operator or a number
-            expression.push(operators[Math.floor(Math.random() * operators.length)]);
-            expression.push(String(Math.floor(Math.random() * 10) + 1));
+            // Randomly choose an operator
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            expression.push(operator);
+            
+            // Choose number based on operator
+            if (operator === '^') {
+                // For exponents, use a number between 2 and 4
+                expression.push(String(Math.floor(Math.random() * 3) + 2));
+            } else {
+                // For other operators, use a number between 1 and 10
+                expression.push(String(Math.floor(Math.random() * 10) + 1));
+            }
         }
     }
 
