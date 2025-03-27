@@ -1,5 +1,5 @@
 // Import shared functions from index.js
-const { formatExpressionWithSuperscript, roundToPrecisionAndTrim } = 
+const { formatExpressionWithSuperscript, roundToPrecisionAndTrim, decimalToMixedFraction } = 
   typeof require !== 'undefined' ? require('./index') : {};
 
 // Back-side specific code
@@ -17,8 +17,8 @@ function evaluateExpression(expression) {
         // Format the original expression with superscript for display
         const formattedExpression = formatExpressionWithSuperscript(expression);
         
-        // Display the result, handling both integer and floating-point results
-        const formattedResult = Number.isInteger(result) ? result : roundToPrecisionAndTrim(result, 5);
+        // Display the result as a mixed fraction
+        const formattedResult = decimalToMixedFraction(result);
         
         return {
             formattedExpression,

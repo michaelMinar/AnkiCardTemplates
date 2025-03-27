@@ -88,10 +88,81 @@ function roundToPrecisionAndTrim(num, precision) {
     return parseFloat(rounded);
 }
 
+// Function to convert a decimal to a mixed fraction string
+function decimalToMixedFraction(decimal) {
+    if (Number.isInteger(decimal)) {
+        return decimal.toString();
+    }
+    
+    // Get the sign of the number
+    const sign = decimal < 0 ? "-" : "";
+    const absDecimal = Math.abs(decimal);
+    
+    // Get the whole number part
+    const wholePart = Math.floor(absDecimal);
+    
+    // Get the fractional part
+    let fractionalPart = absDecimal - wholePart;
+    
+    if (fractionalPart === 0) {
+        return sign + wholePart.toString();
+    }
+    
+    // Check for common fractions first
+    const tolerance = 0.0001;
+    const commonFractions = [
+        { decimal: 1/3, numerator: 1, denominator: 3 },
+        { decimal: 2/3, numerator: 2, denominator: 3 },
+        { decimal: 1/4, numerator: 1, denominator: 4 },
+        { decimal: 3/4, numerator: 3, denominator: 4 },
+        { decimal: 1/5, numerator: 1, denominator: 5 },
+        { decimal: 2/5, numerator: 2, denominator: 5 },
+        { decimal: 3/5, numerator: 3, denominator: 5 },
+        { decimal: 4/5, numerator: 4, denominator: 5 },
+        { decimal: 1/6, numerator: 1, denominator: 6 },
+        { decimal: 5/6, numerator: 5, denominator: 6 },
+        { decimal: 1/8, numerator: 1, denominator: 8 },
+        { decimal: 3/8, numerator: 3, denominator: 8 },
+        { decimal: 5/8, numerator: 5, denominator: 8 },
+        { decimal: 7/8, numerator: 7, denominator: 8 }
+    ];
+    
+    for (const fraction of commonFractions) {
+        if (Math.abs(fractionalPart - fraction.decimal) < tolerance) {
+            if (wholePart === 0) {
+                return sign + fraction.numerator + "/" + fraction.denominator;
+            } else {
+                return sign + wholePart + " " + fraction.numerator + "/" + fraction.denominator;
+            }
+        }
+    }
+    
+    // Convert decimal to fraction using a precision factor
+    const precision = 1000000;
+    let numerator = Math.round(fractionalPart * precision);
+    let denominator = precision;
+    
+    // Find the greatest common divisor (GCD)
+    function gcd(a, b) {
+        return b === 0 ? a : gcd(b, a % b);
+    }
+    
+    const divisor = gcd(numerator, denominator);
+    numerator = numerator / divisor;
+    denominator = denominator / divisor;
+    
+    if (wholePart === 0) {
+        return sign + numerator + "/" + denominator;
+    } else {
+        return sign + wholePart + " " + numerator + "/" + denominator;
+    }
+}
+
 // Export shared functions
 module.exports = {
     formatExpressionWithSuperscript,
     generateMathExpression,
     insertParentheses,
-    roundToPrecisionAndTrim
+    roundToPrecisionAndTrim,
+    decimalToMixedFraction
 };
