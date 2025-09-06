@@ -100,99 +100,11 @@ function findRequiredFunctions(filePath, indexFunctions) {
 
 // Function to process a file - directly replace imports and remove exports
 function processFile(fileContent, requiredFunctions, indexFunctions) {
-  // Clean up the source first by removing potential syntax issues
-  let cleanedContent = fileContent;
-  
-  // Fix the most common issues with double parentheses in function declarations
-  cleanedContent = cleanedContent.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\)/g, 'function $1($2)');
-  cleanedContent = cleanedContent.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\s*{/g, 'function $1($2) {');
-  
-  // Extract the content without import/export statements
-  let lines = cleanedContent.split('\n');
+  // Prepare lines for filtering import/export scaffolding only
+  let lines = fileContent.split('\n');
   let processedLines = [];
   let skipLines = false;
   let skipBrowserInit = false;
-  let bracketDepth = 0; // Track function bracket depth for better formatting
-  let inFunction = false;
-  let inReturnObject = false;
-  let functionIndent = 0;
-  
-  // Sanitize indentation in code
-  const normalizeIndentation = (code) => {
-    const lines = code.split('\n');
-    return lines.map(line => {
-      // Get the leading whitespace
-      const leadingSpaces = line.match(/^(\s*)/)[0];
-      // Replace with consistent indentation (4 spaces per level)
-      const trimmed = line.trim();
-      if (!trimmed) return '';
-      return '    '.repeat(Math.floor(leadingSpaces.length / 2)) + trimmed;
-    }).join('\n');
-  };
-  
-  // Post-process function to properly format code with consistent braces and fix common JavaScript syntax issues
-  const fixBraces = (code) => {
-    // First normalize the indentation for better readability
-    code = normalizeIndentation(code);
-    
-    // Fix all variations of double parentheses in function declarations
-    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\)/g, 'function $1($2)');
-    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)\s*{/g, 'function $1($2) {');
-    // Fix extra parentheses at the start of function declarations
-    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(([^)]*)\)\s*\{[^}]*\}/g, (match, name, params) => {
-      // Remove extra parentheses around parameters
-      return match.replace(/\(\(([^)]*)\)\)/g, '($1)');
-    });
-    
-    // Fix parentheses around parameter lists directly
-    code = code.replace(/function\s+([a-zA-Z0-9_]+)\s*\(\(([^)]*)\)/g, 'function $1($2');
-    
-    // Fix common bracket issues
-    return code
-      // Fix missing closing braces in if statements
-      .replace(/if\s*\([^{]+\)\s*{[^}]*?(?=\n\s*[a-zA-Z])/g, (match) => {
-        if (!match.trim().endsWith('}')) {
-          return match + '\n}';
-        }
-        return match;
-      })
-      
-      // Fix missing semicolons after object literals
-      .replace(/}\s*\n(\s*[a-zA-Z])/g, '};\n$1')
-      
-      // Add missing function closures with proper semicolons
-      .replace(/function\s+([a-zA-Z0-9_]+)\s*\([^)]*\)\s*{([\s\S]*?)(?=\n\s*\/\/|function\s+|$)/g, (match, name, body) => {
-        // If the function doesn't end with a proper closure, add it
-        if (!body.trim().endsWith('}')) {
-          return `function ${name}(${match.match(/\([^)]*\)/)[0]}) {${body}\n}`;
-        }
-        return match;
-      })
-      
-      // Fix return object literals without proper closure
-      .replace(/return\s*{([\s\S]*?)(?=\n\s*})/g, (match) => {
-        if (!match.trim().endsWith('}')) {
-          return match + '\n    }';
-        }
-        return match;
-      })
-      
-      // Fix if-statement with missing braces
-      .replace(/if\s*\([^)]+\)\s*(\n\s*[^{])/g, (match, nextLine) => {
-        return match.replace(nextLine, ' {\n' + nextLine + '\n}');
-      })
-      
-      // Fix try-catch blocks
-      .replace(/try\s*{([\s\S]*?)}\s*catch\s*\(([^)]+)\)\s*{/g, (match) => {
-        return match;
-      })
-      
-      // General cleanup
-      .replace(/}\s*;(\s*[a-zA-Z])/g, '}\n$1')  // Fix extra semicolons
-      .replace(/}\s*;(\s*\/\/)/g, '}\n$1')      // Fix comments after semicolons
-      .replace(/}\s*;\s*}/g, '}\n}')            // Fix nested closures
-      .replace(/}\s*;\s*else/g, '} else');      // Fix else statements
-  };
   
   // First add the required functions from index.js
   const functionsToInline = requiredFunctions
@@ -244,14 +156,6 @@ function processFile(fileContent, requiredFunctions, indexFunctions) {
       continue;
     }
     
-    // Add closing braces for incomplete functions we encounter
-    if (line.includes('}') && !line.includes('};') && 
-        (i+1 < lines.length && lines[i+1].trim() === '')) {
-      // This is a function body closing, add it with semi-colon
-      processedLines.push('};');
-      continue;
-    }
-    
     // If we're in a browser init block, look for the function body
     if (skipBrowserInit && (line.includes('if (!onBack)') || line.includes('if (onBack)'))) {
       // Found the actual init code block, extract only the condition
@@ -294,10 +198,6 @@ function processFile(fileContent, requiredFunctions, indexFunctions) {
       continue;
     }
     
-    // Skip browser init function closing
-    if (line.includes('};')) {
-      continue;
-    }
     
     // Skip lines in the browser init function
     if (skipBrowserInit) {
@@ -310,8 +210,8 @@ function processFile(fileContent, requiredFunctions, indexFunctions) {
     }
   }
   
-  // Apply post-processing to fix common brace and semicolon issues
-  return fixBraces(processedLines.join('\n'));
+  // Return combined content without aggressive post-processing
+  return processedLines.join('\n');
 }
 
 templateDirs.forEach(dir => {
