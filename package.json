@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "node build.js"
+    "build": "node build.js",
+    "samples": "node scripts/render-samples.js topic/add_two_numbers 1 5"
   },
   "repository": {
     "type": "git",
