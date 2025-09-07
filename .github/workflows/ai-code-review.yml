@@ -1,0 +1,182 @@
+name: AI code reviewers
+
+on:
+  pull_request_target:
+    branches: [ main ]
+    types: [ opened, synchronize ]
+  issue_comment:
+    types: [ created ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # ── 1 · Anthropic Claude Opus reviewer (PR events, default) ─────
+  claude_review:
+    name: Claude Opus review
+    runs-on: ubuntu-latest
+    concurrency: claude-${{ github.event.pull_request.number }}
+    if: github.event_name == 'pull_request_target'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: AI Code Review (Anthropic)
+        uses: AleksandrFurmenkovOfficial/ai-code-review@v0.8
+        with:
+          token:     ${{ secrets.GITHUB_TOKEN }}
+          owner:     ${{ github.repository_owner }}
+          repo:      ${{ github.event.repository.name }}
+          pr_number: ${{ github.event.pull_request.number }}
+
+          ai_provider:             'anthropic'
+          anthropic_api_key:       ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_model:         'claude-opus-4-1-20250805'
+          anthropic_temperature:   '0.1'
+
+          system_message: |
+            You are a precise senior reviewer.
+            - List security issues first, performance second, style last.
+            - Keep ≤ 6 concise bullet points per file.
+            - Cite file paths and line ranges when helpful.
+          exclude_paths: |
+            package-lock.json
+            *.lock
+            node_modules/**
+            build/**
+            dist/**
+            *.min.*
+            logs/**
+            design/archive/**
+            *.md
+
+  # ── 2 · OpenAI reviewer (comment trigger via /codex-review) ─────
+  openai_review_on_comment:
+    name: OpenAI review (comment trigger)
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/codex-review')
+    steps:
+      - name: Require repo member/owner
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const role = context.payload.comment.author_association;
+            if (!['OWNER','MEMBER','COLLABORATOR'].includes(role)) {
+              core.setFailed(`Unauthorized commenter: ${role}`);
+            }
+
+      - name: Get PR SHA
+        id: get_pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            core.setOutput('sha', pr.head.sha);
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get_pr.outputs.sha }}
+          fetch-depth: 0
+
+      - name: AI Code Review
+        uses: AleksandrFurmenkovOfficial/ai-code-review@v0.8
+        with:
+          token:     ${{ secrets.GITHUB_TOKEN }}
+          owner:     ${{ github.repository_owner }}
+          repo:      ${{ github.event.repository.name }}
+          pr_number: ${{ github.event.issue.number }}
+
+          ai_provider:            'openai'
+          openai_api_key:         ${{ secrets.OPENAI_API_KEY }}
+          openai_model:           'gpt-5'
+          openai_reasoning_effort: 'high'
+          openai_verbosity:       'high'
+          openai_temperature:     '0.1'
+
+          system_message: |
+            You are a precise senior reviewer.
+            - List security issues first, performance second, style last.
+            - Keep ≤ 6 concise bullet points per file.
+            - Cite file paths and line ranges when helpful.
+          exclude_paths: |
+            package-lock.json
+            *.lock
+            node_modules/**
+            build/**
+            dist/**
+            *.min.*
+            logs/**
+            design/archive/**
+            *.md
+
+
+  # ── 4 · Google Gemini Pro reviewer (comment trigger via /gemini-review) ─
+  gemini_review_on_comment:
+    name: Gemini Pro review (comment trigger)
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/gemini-review')
+    steps:
+      - name: Require repo member/owner
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const role = context.payload.comment.author_association;
+            if (!['OWNER','MEMBER','COLLABORATOR'].includes(role)) {
+              core.setFailed(`Unauthorized commenter: ${role}`);
+            }
+
+      - name: Get PR SHA
+        id: get_pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            core.setOutput('sha', pr.head.sha);
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get_pr.outputs.sha }}
+          fetch-depth: 0
+
+      - name: AI Code Review (Google)
+        uses: AleksandrFurmenkovOfficial/ai-code-review@v0.8
+        with:
+          token:     ${{ secrets.GITHUB_TOKEN }}
+          owner:     ${{ github.repository_owner }}
+          repo:      ${{ github.event.repository.name }}
+          pr_number: ${{ github.event.issue.number }}
+
+          ai_provider:           'google'
+          google_api_key:        ${{ secrets.GEMINI_API_KEY }}
+          google_model:          'gemini-2.5-pro'
+          google_temperature:    '0.1'
+
+          system_message: |
+            You are a precise senior reviewer.
+            - List security issues first, performance second, style last.
+            - Keep ≤ 6 concise bullet points per file.
+            - Cite file paths and line ranges when helpful.
+          exclude_paths: |
+            package-lock.json
+            *.lock
+            node_modules/**
+            build/**
+            dist/**
+            *.min.*
+            logs/**
+            design/archive/**
+            *.md
