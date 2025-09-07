@@ -36,3 +36,6 @@
 - Changes to `build.js` should remain deterministic and not execute untrusted input.
 - Prefer small, focused PRs; keep changes consistent with existing style.
 
+## Agent-Specific Instructions
+- The maintainer reviews unstaged changes before staging. Do not run `git add`, `git commit`, `git push`, or create PRs. You may pull (`git fetch/pull`) to sync and edit files locally; leave all changes unstaged for manual review.
+- Clearly summarize edited file paths and intent after changes. Keep diffs minimal and scoped to the request.
