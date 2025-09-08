@@ -82,5 +82,67 @@ Out of scope for this PR:
 - [x] Add sample renderer at `scripts/render-samples.js` and `npm run samples` script.
 - [x] Add Jest tests: `tests/runtime/rng.test.js`, `tests/templates/starter.test.js`.
 - [x] Update README with a minimal Samples section.
-- [ ] Reviewer feedback: confirm contract naming, starter placement, and sample script UX.
+- [x] Reviewer feedback: confirm contract naming, starter placement, and sample script UX.
 - [ ] Decide bundler (esbuild vs rollup) and where to host minimal Anki HTML in repo.
+
+## Phase 2 – Template Contract: Findings and Plan (2025-09-07)
+
+Findings
+
+- Implemented
+  - Runtime core: `src/runtime/rng.js` (mulberry32, randInt, choice, shuffle, gcd, lcm) and `src/runtime/index.js` (register/get, `window.ANKI_TEMPLATES.util`).
+  - Starter contract template: `src/templates/_starter/add_two_numbers.js` with `{ id, meta, generate, validate }` and registration.
+  - Samples + tests: `scripts/render-samples.js`, `tests/runtime/rng.test.js`, `tests/templates/starter.test.js` (determinism, parity, invariants).
+- Not implemented
+  - Bundling and example Anki HTML that consumes a bundle (no `dist/` yet).
+  - Contract docs file (`types.d.ts`) and explicit conformance guard tests.
+- Context
+  - Legacy builder (`build.js`) remains for `templates/<tmpl>/` + `src/<tmpl>/{index.js,front.js,back.js}` pipeline and should remain untouched.
+
+Decision
+
+- Proceed with a dedicated Phase 2 PR focused on finalizing the template contract (docs + conformance) and adding 1–2 real, seed-driven templates. Defer bundling and Anki HTML to the next PR to keep changes small and low risk.
+
+Scope of Next PR (Phase 2 – Template Contract)
+
+- Add contract documentation
+  - Create `src/runtime/types.d.ts` with `GenerateOptions`, `GenerateResult`, `TemplateMeta`, `TemplateImpl` per `design/design-spec.md`.
+- Add conformance tests/guards
+  - Jest test asserting template shape (`id`, `generate` function), determinism per seed, and front/back parity for registered templates.
+  - Add a Jest safeguard that scans `src/templates/**` for forbidden `Math.random` usage (regex-based) to enforce seed-driven RNG.
+  - Optional: lightweight runtime guard in `registerTemplate` to assert `impl.generate` is a function and `id` is non-empty (already present) + tolerate `validate` being optional.
+- Author 1–2 seed-driven templates
+  - Implement an additional deterministic template (candidate: `arithmetic/multiply_2d_by_1d` or a simple PEMDAS variant) with `meta.defaults`, basic `validate`, and tests.
+- Extend samples
+  - Update `scripts/render-samples.js` to require/register the new template(s); document sample seed ranges in README.
+- Docs
+  - Update README with a short “Template Contract” authoring blurb, link to `types.d.ts`, and samples usage for new templates.
+
+Acceptance for Phase 2 PR
+
+- `npm test` passes; determinism and invariant tests included for new templates.
+- `src/runtime/types.d.ts` present and referenced from README/design.
+- Samples script prints front/back HTML for starter and new template(s).
+- No changes to legacy `build.js` behavior.
+
+Out of Scope (Phase 2 PR)
+
+- Bundling and Anki HTML integration.
+- Migrating existing legacy templates to the new contract.
+
+Follow-up PR (Phase 3 – Bundling + HTML)
+
+- Add esbuild-based bundle: emit `dist/dynamic-math.bundle.js` (runtime + registered templates).
+- Provide minimal Anki front/back HTML that reads fields (TemplateId, Seed, Config) and calls `window.ANKI_TEMPLATES.get(id).generate({ seed, config, side })` with graceful error fallback.
+- Optionally upload the bundle as a CI artifact.
+
+Risks & Rationale
+
+- Keeping bundling separate avoids toolchain churn in the contract PR and limits blast radius. Conformance tests (determinism and no `Math.random`) reduce drift risk and make future template reviews faster.
+
+Phase 2 TODOs
+
+- [x] Add `src/runtime/types.d.ts` documenting the contract. (done)
+- [x] Add Jest contract conformance tests and RNG usage guard. (done)
+- [x] Implement one additional deterministic template with tests and samples. (added `arithmetic/multiply_2d_by_1d`)
+- [x] Update README with contract docs and samples. (done)
