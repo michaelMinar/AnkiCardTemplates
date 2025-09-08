@@ -1,6 +1,7 @@
 "use strict";
 
 const rng = require("./rng");
+const reviewSeed = require("./reviewSeed");
 
 const REGISTRY = Object.create(null);
 
@@ -10,6 +11,9 @@ function registerTemplate(id, impl) {
   }
   if (!impl || typeof impl.generate !== "function") {
     throw new Error("registerTemplate: impl must include generate(opts)");
+  }
+  if (impl.id && impl.id !== id) {
+    throw new Error("registerTemplate: impl.id must match id");
   }
   REGISTRY[id] = impl;
   return impl;
@@ -34,6 +38,7 @@ if (typeof window !== "undefined") {
       shuffle: rng.shuffle,
       gcd: rng.gcd,
       lcm: rng.lcm,
+      resolveReviewSeed: reviewSeed.resolveReviewSeed,
     },
   };
 }
@@ -41,6 +46,5 @@ if (typeof window !== "undefined") {
 module.exports = {
   registerTemplate,
   getTemplate,
-  util: rng,
+  util: Object.assign({}, rng, { resolveReviewSeed: reviewSeed.resolveReviewSeed }),
 };
-

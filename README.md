@@ -9,6 +9,13 @@ Source code for Javascript based Anki Card templates. I'm particularly intereste
 - Output shows front/back HTML for seeds 1–5 to aid review.
 - Starter template lives at `src/templates/_starter/add_two_numbers.js` and uses a deterministic RNG.
 
+## Template Contract (authoring quickstart)
+- Implement `module.exports = { id, meta, generate, validate }` in `src/templates/<group>/<name>.js`.
+- Determinism: derive all randomness from `mulberry32(seed)`. Avoid `Math.random()`.
+- `generate({ seed, config, side })` returns `{ html, data? }`; same operands on front/back, reveal on `side: 'back'`.
+- `meta` includes `title`, `skills`, `gradeBands`, and optional `defaults`.
+- See `src/runtime/types.d.ts` for interface docs and the starter template for an example.
+
 ## AI Reviews
 
 - Default reviewer: Anthropic Claude Opus 4.1 runs on all PRs to `main` via GitHub Actions.

@@ -4,12 +4,15 @@
 const path = require("path");
 const { getTemplate } = require("../src/runtime");
 
-// Ensure starter template is registered (add more requires as templates grow)
+// Ensure templates are registered (add more requires as templates grow)
 require("../src/templates/_starter/add_two_numbers");
+require("../src/templates/arithmetic/multiply_2d_by_1d");
 
 function usage() {
   console.log("Usage: node scripts/render-samples.js <TemplateId> [startSeed] [endSeed]");
-  console.log("Example: node scripts/render-samples.js topic/add_two_numbers 1 5");
+  console.log("Examples:");
+  console.log("  node scripts/render-samples.js topic/add_two_numbers 1 5");
+  console.log("  node scripts/render-samples.js arithmetic/multiply_2d_by_1d 10 12");
 }
 
 function main() {
@@ -44,4 +47,3 @@ if (require.main === module) {
     process.exit(1);
   }
 }
-
