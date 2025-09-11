@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "anki-card-templates"
+version = "0.1.0"
+description = "Utilities and scripts for managing PR reviews and dynamic Anki math templates"
+authors = ["Michael Minar <git@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
