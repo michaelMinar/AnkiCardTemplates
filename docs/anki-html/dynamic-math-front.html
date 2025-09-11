@@ -1,0 +1,23 @@
+<div id="card-root"></div>
+<script src="dynamic-math.bundle.js"></script>
+<script>
+(function () {
+  try {
+    var id = "{{TemplateId}}".trim();
+    var seedField = "{{Seed}}"; // may be blank or non-numeric
+    var cfgText = "{{Config}}".trim();
+    var config = {};
+    if (cfgText && cfgText !== "{{Config}}") {
+      try { config = JSON.parse(cfgText); } catch (_) {}
+    }
+    var api = window.ANKI_TEMPLATES;
+    var tpl = api.get(id);
+    // Per-review default: true when Seed is not numeric
+    var seed = api.util.resolveReviewSeed({ templateId: id, seedField: seedField, side: 'front' });
+    var res = tpl.generate({ seed: seed, config: config, side: 'front' });
+    document.getElementById('card-root').innerHTML = res.html;
+  } catch (e) {
+    document.getElementById('card-root').textContent = 'Template error: ' + (e && e.message || e);
+  }
+})();
+</script>

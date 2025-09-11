@@ -16,6 +16,20 @@ Source code for Javascript based Anki Card templates. I'm particularly intereste
 - `meta` includes `title`, `skills`, `gradeBands`, and optional `defaults`.
 - See `src/runtime/types.d.ts` for interface docs and the starter template for an example.
 
+## Bundling & Anki Integration (Phase 3)
+- Build bundle:
+  - `npm install` (to fetch esbuild)
+  - `npm run bundle` → emits `dist/dynamic-math.bundle.js`
+- Add to Anki:
+  - Import `dist/dynamic-math.bundle.js` into deck media; reference it exactly as `src="dynamic-math.bundle.js"` in your card HTML.
+  - Create a note type with fields: `TemplateId`, `Seed`, `Config`.
+  - Paste HTML from `docs/anki-html/dynamic-math-front.html` and `docs/anki-html/dynamic-math-back.html`.
+- Behavior:
+  - If `Seed` is a number, the card is static and deterministic per seed.
+  - If `Seed` is blank/non-numeric, per-review mode is used by default: the front picks a fresh seed and stores it; the back reads and clears it.
+
+See also: `docs/anki-integration-guide.md` for a step-by-step walkthrough.
+
 ## AI Reviews
 
 - Default reviewer: Anthropic Claude Opus 4.1 runs on all PRs to `main` via GitHub Actions.

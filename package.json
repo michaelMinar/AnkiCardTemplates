@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "node build.js",
-    "samples": "node scripts/render-samples.js topic/add_two_numbers 1 5"
+    "samples": "node scripts/render-samples.js topic/add_two_numbers 1 5",
+    "bundle": "node scripts/build-bundle.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "@babel/generator": "^7.27.0",
     "@babel/parser": "^7.27.0",
     "@babel/traverse": "^7.27.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "esbuild": "^0.21.5"
   }
 }
