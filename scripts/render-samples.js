@@ -7,12 +7,16 @@ const { getTemplate } = require("../src/runtime");
 // Ensure templates are registered (add more requires as templates grow)
 require("../src/templates/_starter/add_two_numbers");
 require("../src/templates/arithmetic/multiply_2d_by_1d");
+require("../src/templates/number_theory/gcf_basic");
+require("../src/templates/number_theory/lcm_basic");
 
 function usage() {
   console.log("Usage: node scripts/render-samples.js <TemplateId> [startSeed] [endSeed]");
   console.log("Examples:");
   console.log("  node scripts/render-samples.js topic/add_two_numbers 1 5");
   console.log("  node scripts/render-samples.js arithmetic/multiply_2d_by_1d 10 12");
+  console.log("  node scripts/render-samples.js number_theory/gcf_basic 1 5");
+  console.log("  node scripts/render-samples.js number_theory/lcm_basic 5 7");
 }
 
 function main() {

@@ -32,6 +32,8 @@ This guide walks through building the bundle, adding it to Anki on desktop, crea
   - `TemplateId`: choose a registered template id, e.g.:
     - `topic/add_two_numbers`
     - `arithmetic/multiply_2d_by_1d`
+    - `number_theory/gcf_basic`
+    - `number_theory/lcm_basic`
   - `Seed`:
     - Leave blank for per-review mode (fresh problem each time you review the card; front stores the seed, back reads and clears it).
     - Or set a number (e.g., `17`) for a static problem (deterministic per seed).
@@ -64,4 +66,3 @@ This guide walks through building the bundle, adding it to Anki on desktop, crea
 ## 9) Updating/Adding templates to the bundle
 - Add a `require` line in `src/entry/bundle.js` for any new templates you want included in the bundle.
 - Re-run `npm run bundle` and re-add the bundle to Anki media.
-

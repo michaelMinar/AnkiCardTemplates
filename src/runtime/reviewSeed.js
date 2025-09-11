@@ -33,10 +33,10 @@ function storageKey(templateId) {
 }
 
 function coerceSeed(val) {
-  if (typeof val === "number" && Number.isFinite(val)) return val | 0;
+  if (typeof val === "number" && Number.isFinite(val)) return (val >>> 0);
   if (typeof val === "string" && val.trim() !== "") {
     const n = parseInt(val, 10);
-    if (!Number.isNaN(n)) return n | 0;
+    if (!Number.isNaN(n)) return (n >>> 0);
   }
   return null;
 }
@@ -105,4 +105,3 @@ module.exports = {
   resolveReviewSeed,
   _internal: { storageKey, getStorage, freshSeed, coerceSeed },
 };
-
