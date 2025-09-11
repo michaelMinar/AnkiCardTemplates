@@ -146,3 +146,34 @@ Phase 2 TODOs
 - [x] Add Jest contract conformance tests and RNG usage guard. (done)
 - [x] Implement one additional deterministic template with tests and samples. (added `arithmetic/multiply_2d_by_1d`)
 - [x] Update README with contract docs and samples. (done)
+
+## Phase 3 – Bundling + Anki HTML (2025-09-08)
+
+Scope & Deliverables
+
+- Bundling
+  - Add esbuild bundler with `npm run bundle` → emits `dist/dynamic-math.bundle.js`.
+  - Bundle entry at `src/entry/bundle.js` registers runtime and templates.
+- Anki HTML examples
+  - Provide `docs/anki-html/dynamic-math-front.html` and `docs/anki-html/dynamic-math-back.html` that consume the bundle.
+  - Use `window.ANKI_TEMPLATES.util.resolveReviewSeed` (per-review default) and `get(id).generate({ seed, side })`.
+- Docs
+  - README section on Bundling & Anki Integration.
+
+Acceptance
+
+- Local: `npm run bundle` produces `dist/dynamic-math.bundle.js` (after `npm install`).
+- HTML snippets render plausibly for `topic/add_two_numbers` and `arithmetic/multiply_2d_by_1d` when fields are provided.
+- No changes to legacy `build.js` flow.
+
+Artifacts Added
+
+- `scripts/build-bundle.js` (esbuild driver)
+- `src/entry/bundle.js` (bundle entrypoint)
+- `docs/anki-html/dynamic-math-front.html` and `docs/anki-html/dynamic-math-back.html`
+- README updates with instructions
+
+Open Items
+
+- Optional CI: upload `dist/dynamic-math.bundle.js` artifact.
+- Consider a tiny sample page under `docs/` to preview templates in a browser for reviewers.
