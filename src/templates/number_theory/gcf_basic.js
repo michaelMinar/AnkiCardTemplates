@@ -61,11 +61,20 @@ function generatePair(rng, config) {
         }
         if (a < 2) a = 2;
         if (b < 2) b = 2;
+        if (a === b) { // avoid identical operands
+            lastA = a; lastB = b;
+            continue;
+        }
         const g = gcd(a, b);
         lastA = a; lastB = b;
         if (!ensureNonTrivial || g > 1) {
             return { a, b, g };
         }
+    }
+    // Fallback: ensure distinct
+    if (lastA === lastB) {
+        const alt = (lastB + 1 <= max) ? lastB + 1 : (lastB - 1 >= min ? lastB - 1 : lastB);
+        lastB = alt;
     }
     return { a: lastA, b: lastB, g: gcd(lastA, lastB) };
 }
@@ -98,4 +107,3 @@ function validate({ seed, config = {} }) {
 registerTemplate(id, { id, meta, generate, validate });
 
 module.exports = { id, meta, generate, validate };
-

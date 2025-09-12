@@ -7,7 +7,8 @@
     "test": "jest",
     "build": "node build.js",
     "samples": "node scripts/render-samples.js topic/add_two_numbers 1 5",
-    "bundle": "node scripts/build-bundle.js"
+    "bundle": "node scripts/build-bundle.js && node scripts/generate-inline-html.js",
+    "bundle:inline": "node scripts/generate-inline-html.js"
   },
   "repository": {
     "type": "git",

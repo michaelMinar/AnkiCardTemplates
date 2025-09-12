@@ -32,5 +32,22 @@ describe('number_theory/lcm_basic', () => {
     expect(ans * gcd(a, b)).toBe(a * b);
     expect(ans).toBeLessThanOrEqual(72);
   });
-});
 
+  test('when digits allow 1 and 2, two-operand LCM avoids both single-digit operands', () => {
+    const t = getTemplate(id);
+    for (let s = 1; s <= 20; s++) {
+      const back = t.generate({ seed: s, config: { count: 2, digits: [1,2] }, side: 'back' });
+      const [a, b] = back.data.operands;
+      expect(!(a < 10 && b < 10)).toBe(true);
+    }
+  });
+
+  test('operands are unique (no duplicates) for count=3 as well', () => {
+    const t = getTemplate(id);
+    for (let s = 1; s <= 20; s++) {
+      const back = t.generate({ seed: s, config: { count: 3, digits: [1,2] }, side: 'back' });
+      const ops = back.data.operands;
+      expect(new Set(ops).size).toBe(ops.length);
+    }
+  });
+});

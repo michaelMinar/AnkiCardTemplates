@@ -6,26 +6,21 @@
 
 let seedCounter = 1;
 
-function getStorage() {
-  try {
-    if (typeof window !== "undefined" && window.sessionStorage) return window.sessionStorage;
-  } catch (_) {}
-  try {
-    if (typeof sessionStorage !== "undefined") return sessionStorage;
-  } catch (_) {}
-  try {
-    if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
-  } catch (_) {}
-  try {
-    if (typeof localStorage !== "undefined") return localStorage;
-  } catch (_) {}
-  // In-memory fallback
-  const mem = new Map();
-  return {
-    getItem: (k) => (mem.has(k) ? String(mem.get(k)) : null),
-    setItem: (k, v) => void mem.set(k, String(v)),
-    removeItem: (k) => void mem.delete(k),
-  };
+function getStorages() {
+  const stores = [];
+  try { if (typeof window !== "undefined" && window.sessionStorage) stores.push(window.sessionStorage); } catch (_) {}
+  try { if (typeof sessionStorage !== "undefined" && !stores.includes(sessionStorage)) stores.push(sessionStorage); } catch (_) {}
+  try { if (typeof window !== "undefined" && window.localStorage) stores.push(window.localStorage); } catch (_) {}
+  try { if (typeof localStorage !== "undefined" && !stores.includes(localStorage)) stores.push(localStorage); } catch (_) {}
+  if (stores.length === 0) {
+    const mem = new Map();
+    stores.push({
+      getItem: (k) => (mem.has(k) ? String(mem.get(k)) : null),
+      setItem: (k, v) => void mem.set(k, String(v)),
+      removeItem: (k) => void mem.delete(k),
+    });
+  }
+  return stores;
 }
 
 function storageKey(templateId) {
@@ -59,6 +54,12 @@ function freshSeed() {
   return s;
 }
 
+// Back-compat wrapper for older tests/utilities
+function getStorage() {
+  const stores = getStorages();
+  return stores[0];
+}
+
 // Resolve the seed for a given side (front/back) according to policy.
 // Returns a number and performs storage set/remove as needed.
 function resolveReviewSeed({ templateId, seedField, side = "front", perReview = true }) {
@@ -67,12 +68,12 @@ function resolveReviewSeed({ templateId, seedField, side = "front", perReview = 
   }
   const provided = coerceSeed(seedField);
   const key = storageKey(templateId);
-  const store = getStorage();
+  const stores = getStorages();
 
   // If a valid numeric Seed is provided, honor it (static mode).
   if (typeof provided === "number") {
     // Ensure no leftover per-review seed leaks
-    try { store.removeItem(key); } catch (_) {}
+    for (const s of stores) { try { s.removeItem(key); } catch (_) {} }
     return provided;
   }
 
@@ -84,18 +85,21 @@ function resolveReviewSeed({ templateId, seedField, side = "front", perReview = 
 
   if (side === "front") {
     const s = freshSeed();
-    try { store.setItem(key, String(s)); } catch (_) {}
+    for (const st of stores) { try { st.setItem(key, String(s)); } catch (_) {} }
     return s;
   }
   // back side
-  try {
-    const v = store.getItem(key);
-    const s = coerceSeed(v);
-    if (typeof s === "number") {
-      try { store.removeItem(key); } catch (_) {}
-      return s;
-    }
-  } catch (_) {}
+  for (const st of stores) {
+    try {
+      const v = st.getItem(key);
+      const s = coerceSeed(v);
+      if (typeof s === "number") {
+        // Clear from all storages
+        for (const s2 of stores) { try { s2.removeItem(key); } catch (_) {} }
+        return s;
+      }
+    } catch (_) {}
+  }
   // Fallback: generate fresh if storage missing; back/front may mismatch.
   const s = freshSeed();
   return s;
@@ -103,5 +107,5 @@ function resolveReviewSeed({ templateId, seedField, side = "front", perReview = 
 
 module.exports = {
   resolveReviewSeed,
-  _internal: { storageKey, getStorage, freshSeed, coerceSeed },
+  _internal: { storageKey, getStorages, getStorage, freshSeed, coerceSeed },
 };

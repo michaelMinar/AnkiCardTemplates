@@ -33,5 +33,13 @@ describe('number_theory/gcf_basic', () => {
     }
     expect(found).toBe(true);
   });
-});
 
+  test('operands are distinct (a != b)', () => {
+    const t = getTemplate(id);
+    for (let s = 1; s <= 30; s++) {
+      const back = t.generate({ seed: s, side: 'back' });
+      const { a, b } = back.data;
+      expect(a).not.toBe(b);
+    }
+  });
+});
